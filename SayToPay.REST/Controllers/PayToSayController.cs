@@ -15,7 +15,7 @@ namespace SayToPay.REST.Controllers
                 {
                     Speech = "Test Test",
                     DisplayText = "Test Display",
-                    Source = request.Result.Source
+                    Source = "saytopay"
                 });
         }
     }
