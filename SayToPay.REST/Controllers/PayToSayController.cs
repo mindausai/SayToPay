@@ -75,7 +75,7 @@ namespace SayToPay.REST.Controllers
                 {
                     return Request.CreateResponse(result + " not null ");
                 }
-                return Request.CreateResponse(ex.Message + " null " + response.StatusCode);
+                return Request.CreateResponse(ex.Message + " null " + response.StatusCode + " Error: " + response.ErrorMessage);
             }
         }
 
