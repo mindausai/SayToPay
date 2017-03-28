@@ -69,7 +69,7 @@ namespace SayToPay.REST.Controllers
             }
             catch (Exception ex)
             {
-                Request.CreateResponse(ex.Message);
+                return Request.CreateResponse(ex.Message);
             }
         }
 
