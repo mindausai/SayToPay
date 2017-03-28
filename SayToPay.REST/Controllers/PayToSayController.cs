@@ -79,6 +79,24 @@ namespace SayToPay.REST.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("api/PayToSayTest")]
+        public async Task<HttpResponseMessage> PayToSayTest(PayToSayRequest request)
+        {
+                var speech = "Your shop made " + 1532 + " " + "DKK" +
+             ". Refunded " + 15 + " " + "DKK" +
+             ". Have made " + 8 + " transactions.";
+
+                return
+                    Request.CreateResponse(new PayToSayResponse()
+                    {
+                        Speech = speech,
+                        DisplayText = speech,
+                        Source = request.Result.Source
+                    });
+            
+        }
+
         private HttpException ValidateResponse<TError>(IRestResponse response) where TError : IRestRetrieverErrorMessage
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
