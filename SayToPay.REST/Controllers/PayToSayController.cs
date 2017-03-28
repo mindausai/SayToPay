@@ -2,9 +2,12 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
+using Newtonsoft.Json;
 using RestSharp;
 using SayToPay.REST.Contract;
+using SayToPay.REST.ErrorHandling;
 
 namespace SayToPay.REST.Controllers
 {
@@ -37,6 +40,9 @@ namespace SayToPay.REST.Controllers
             //var result = response2.Data;
 
             var response = await client.ExecuteTaskAsync<PaymentPointSales>(restRequest);
+
+            ValidateResponse<StandardErrorMessage>(response);
+
             var result = response.Data;
 
             var speech = "Your shop made " + result.TotalSalesAmount.Amount + " " + result.TotalSalesAmount.Currency +
@@ -50,6 +56,42 @@ namespace SayToPay.REST.Controllers
                     DisplayText = speech,
                     Source = request.Result.Source
                 });
+        }
+
+        private void ValidateResponse<TError>(IRestResponse response) where TError : IRestRetrieverErrorMessage
+        {
+            if (response.ResponseStatus != ResponseStatus.Completed)
+            {
+                throw new HttpException($"RestClient error: {response.ErrorMessage}. " +
+                                        $"HttpStatusCode: {response.StatusCode}. " +
+                                        $"Request: {response.Request.Resource}");
+            }
+
+            if ((int)response.StatusCode >= 200 && (int)response.StatusCode <= 299)
+            {
+                return;
+            }
+
+            var errorMessage = TryGetErrorMessage<TError>(response) ??
+                               "Error message: Unable to deserialize. " +
+                               $"HttpStatusCode: {response.StatusCode}. " +
+                               $"Request: {response.Request.Resource}";
+
+            throw new HttpException((int)response.StatusCode, errorMessage);
+        }
+
+        private string TryGetErrorMessage<TError>(IRestResponse response)
+    where TError : IRestRetrieverErrorMessage
+        {
+            try
+            {
+                var e = JsonConvert.DeserializeObject<TError>(response.Content);
+                return e.GetMessage();
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
