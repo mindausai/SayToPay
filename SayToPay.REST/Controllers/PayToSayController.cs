@@ -52,7 +52,7 @@ namespace SayToPay.REST.Controllers
 
                 if (exception != null)
                 {
-                    Request.CreateResponse(exception);
+                    Request.CreateResponse(exception + " " + response.StatusCode);
                 }
 
                 result = response.Data;
@@ -73,7 +73,7 @@ namespace SayToPay.REST.Controllers
             {
                 if (result != null)
                 {
-                    return Request.CreateResponse(result);
+                    return Request.CreateResponse(result + " not null ");
                 }
                 return Request.CreateResponse(ex.Message + " null " + response.StatusCode);
             }
