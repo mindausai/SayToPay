@@ -24,7 +24,7 @@ namespace SayToPay.REST.Controllers
         [HttpPost]
         [Route("api/PayToSay")]
         public async Task<HttpResponseMessage> PayToSay(PayToSayRequest request)
-        {           
+        {
             // client.Authenticator = new HttpBasicAuthenticator(username, password);
 
             var restRequest = new RestRequest("api/v1/transactions/28ec33bb-ca8d-4324-975b-b3699637ce97/sales?startDate=2017-03-20&endDate=2017-03-27&paymentPoints=df34b1b8-fb56-4b85-837a-43094eedf857", Method.GET);
@@ -41,7 +41,12 @@ namespace SayToPay.REST.Controllers
 
             var response = await client.ExecuteTaskAsync<PaymentPointSales>(restRequest);
 
-            ValidateResponse<StandardErrorMessage>(response);
+            var exception = ValidateResponse<StandardErrorMessage>(response);
+
+            if (exception != null)
+            {
+                Request.CreateResponse(exception);
+            }
 
             var result = response.Data;
 
@@ -58,18 +63,18 @@ namespace SayToPay.REST.Controllers
                 });
         }
 
-        private void ValidateResponse<TError>(IRestResponse response) where TError : IRestRetrieverErrorMessage
+        private HttpException ValidateResponse<TError>(IRestResponse response) where TError : IRestRetrieverErrorMessage
         {
             if (response.ResponseStatus != ResponseStatus.Completed)
             {
-                throw new HttpException($"RestClient error: {response.ErrorMessage}. " +
+                return new HttpException($"RestClient error: {response.ErrorMessage}. " +
                                         $"HttpStatusCode: {response.StatusCode}. " +
                                         $"Request: {response.Request.Resource}");
             }
 
             if ((int)response.StatusCode >= 200 && (int)response.StatusCode <= 299)
             {
-                return;
+                return null;
             }
 
             var errorMessage = TryGetErrorMessage<TError>(response) ??
@@ -77,7 +82,7 @@ namespace SayToPay.REST.Controllers
                                $"HttpStatusCode: {response.StatusCode}. " +
                                $"Request: {response.Request.Resource}";
 
-            throw new HttpException((int)response.StatusCode, errorMessage);
+            return new HttpException((int)response.StatusCode, errorMessage);
         }
 
         private string TryGetErrorMessage<TError>(IRestResponse response)
