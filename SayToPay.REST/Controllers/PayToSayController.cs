@@ -25,6 +25,7 @@ namespace SayToPay.REST.Controllers
         [Route("api/PayToSay")]
         public async Task<HttpResponseMessage> PayToSay(PayToSayRequest request)
         {
+            PaymentPointSales result = null; 
             try
             {
                 // client.Authenticator = new HttpBasicAuthenticator(username, password);
@@ -53,7 +54,7 @@ namespace SayToPay.REST.Controllers
                     Request.CreateResponse(exception);
                 }
 
-                var result = response.Data;
+                result = response.Data;
 
                 var speech = "Your shop made " + result.TotalSalesAmount.Amount + " " + result.TotalSalesAmount.Currency +
                              ". Refunded " + result.TotalRefundsAmount.Amount + " " + result.TotalRefundsAmount.Currency +
@@ -69,6 +70,10 @@ namespace SayToPay.REST.Controllers
             }
             catch (Exception ex)
             {
+                if (result != null)
+                {
+                    return Request.CreateResponse(result);
+                }
                 return Request.CreateResponse(ex.Message);
             }
         }
