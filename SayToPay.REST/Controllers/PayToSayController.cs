@@ -14,7 +14,8 @@ namespace SayToPay.REST.Controllers
 
         public PayToSayController()
         {
-            //RestClien
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 |
+                                      SecurityProtocolType.Tls;
         }
 
         [HttpPost]
@@ -23,7 +24,7 @@ namespace SayToPay.REST.Controllers
         {           
             // client.Authenticator = new HttpBasicAuthenticator(username, password);
 
-            var restRequest = new RestRequest("api/v1/transactions/28ec33bb-ca8d-4324-975b-b3699637ce97/sales?startDate=2017-03-20&endDate=2017-03-27&paymentPoints=df34b1b8-fb56-4b85-837a-43094eedf857", Method.POST);
+            var restRequest = new RestRequest("api/v1/transactions/28ec33bb-ca8d-4324-975b-b3699637ce97/sales?startDate=2017-03-20&endDate=2017-03-27&paymentPoints=df34b1b8-fb56-4b85-837a-43094eedf857", Method.GET);
 
             // easily add HTTP Headers
             restRequest.AddHeader("AuthenticatedUser", "138b5f5a-1897-4a54-8c15-e42e9340f621");
